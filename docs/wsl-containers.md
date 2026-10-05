@@ -89,7 +89,7 @@ Windows host (127.0.0.1)
 
 The scripts are self-contained on purpose, with no shared module, so each one can be copied to
 another project on its own. Defaults live at the top of each script, and `.env` overrides them.
-`Taskfile.yml` includes one Taskfile per recipe (`taskfile/`) as the namespaces `mssql:`,
+`Taskfile.yml` includes one Taskfile per recipe (`taskfiles/`) as the namespaces `mssql:`,
 `postgresql:` and `timescale:`. The full list of conventions is in the
 [README](../README.md#recipe-conventions).
 

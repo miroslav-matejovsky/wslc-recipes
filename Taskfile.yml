@@ -11,13 +11,13 @@ vars:
 
 includes:
   mssql:
-    taskfile: ./taskfile/mssql.yml
+    taskfile: ./taskfiles/mssql.yml
     dir: .
   postgresql:
-    taskfile: ./taskfile/postgresql.yml
+    taskfile: ./taskfiles/postgresql.yml
     dir: .
   timescale:
-    taskfile: ./taskfile/postgresql+timescale.yml
+    taskfile: ./taskfiles/postgresql+timescale.yml
     dir: .
 
 tasks:

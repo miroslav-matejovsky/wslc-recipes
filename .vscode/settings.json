@@ -60,11 +60,11 @@
     }
   ],
   "cSpell.words": [
-    "taskfile",
-       "pgadmin",
+    "LASTEXITCODE",
+    "pgadmin",
     "ssms",
     "taskfile",
+    "taskfiles",
     "wslc"
- 
   ]
 }

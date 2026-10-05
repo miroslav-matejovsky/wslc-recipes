@@ -101,13 +101,13 @@ Every recipe follows the same pattern, so they read alike and are easy to copy:
 | Ports           | published on `127.0.0.1` only, each recipe on its own host ports                                        |
 | Idempotent `up` | creates what's missing, starts what's stopped, then waits until the service accepts connections         |
 | Generated files | under `.local/<recipe>/` (git-ignored), e.g. pgAdmin's `servers.json`                                   |
-| Task wrapper    | `taskfile/<recipe>.yml`, included in `Taskfile.yml` as the `<recipe>:` namespace                        |
+| Task wrapper    | `taskfiles/<recipe>.yml`, included in `Taskfile.yml` as the `<recipe>:` namespace                        |
 
 ### Adding a recipe
 
 1. Copy the closest script (`mssql.ps1` for one container, `postgresql.ps1` for an app + admin UI on a
    private network) to `scripts/<recipe>.ps1` and adapt the config block, names and readiness probe.
-2. Copy a `taskfile/*.yml`, point it at the new script and include it in `Taskfile.yml`.
+2. Copy a `taskfiles/*.yml`, point it at the new script and include it in `Taskfile.yml`.
 3. Add the `<RECIPE>_*` keys to `.env.example`.
 4. Add the recipe name to `$NamePattern` in `scripts/clean.ps1`.
 5. Write `docs/<recipe>.md` and add a row to the [Recipes](#recipes) table.
@@ -121,7 +121,7 @@ scripts/
   postgresql.ps1               PostgreSQL + pgAdmin recipe
   postgresql+timescale.ps1     PostgreSQL + TimescaleDB + pgAdmin recipe
   clean.ps1                    stop + remove all resources of all recipes
-taskfile/                      one Taskfile per recipe (namespaced in Taskfile.yml)
+taskfiles/                      one Taskfile per recipe (namespaced in Taskfile.yml)
 docs/                          wslc findings, per-recipe connection guides, troubleshooting
 .local/                        generated files, git-ignored (pgAdmin servers.json)
 ```
