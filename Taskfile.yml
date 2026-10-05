@@ -1,0 +1,56 @@
+# https://taskfile.dev
+# wslc-recipes - independent local-infrastructure recipes on WSL containers. Use only the ones you need:
+#   task mssql:up        SQL Server               (+ SSMS on the host: task mssql:ssms)
+#   task postgresql:up   PostgreSQL               (+ pgAdmin on :5050)
+#   task timescale:up    PostgreSQL + TimescaleDB (+ pgAdmin on :5051)
+#   task clean           stop + remove everything this repo started (data kept)
+version: "3"
+
+vars:
+  PS: pwsh -NoProfile -ExecutionPolicy Bypass -File
+
+includes:
+  mssql:
+    taskfile: ./taskfile/mssql.yml
+    dir: .
+  postgresql:
+    taskfile: ./taskfile/postgresql.yml
+    dir: .
+  timescale:
+    taskfile: ./taskfile/postgresql+timescale.yml
+    dir: .
+
+tasks:
+  default:
+    silent: true
+    cmds:
+      - task --list
+
+  check:
+    desc: Verify wslc is installed and the container runtime responds
+    cmds:
+      - wslc version
+      - wslc info
+
+  env:
+    desc: Create .env from .env.example (if missing) to customise ports/passwords
+    status:
+      - pwsh -NoProfile -Command "exit [int](-not (Test-Path .env))"
+    cmds:
+      - pwsh -NoProfile -Command "Copy-Item .env.example .env"
+
+  ps:
+    desc: List all wslc containers, volumes and networks (not only this repo's)
+    cmds:
+      - wslc list --all
+      - wslc volume list
+      - wslc network list
+
+  clean:
+    desc: Stop and remove the containers and networks of every recipe (data volumes are kept)
+    cmds: ['{{.PS}} scripts/clean.ps1']
+
+  purge:
+    desc: Like clean, but also delete every recipe's data volumes and generated .local/ files
+    prompt: This deletes the data of ALL recipes. Continue?
+    cmds: ['{{.PS}} scripts/clean.ps1 -Volumes']

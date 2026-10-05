@@ -1,0 +1,41 @@
+# PostgreSQL + pgAdmin recipe -> scripts/postgresql.ps1
+version: '3'
+
+vars:
+  PS: pwsh -NoProfile -ExecutionPolicy Bypass -File
+  SCRIPT: scripts/postgresql.ps1
+  TARGET: '{{.CLI_ARGS | default "db"}}'
+
+tasks:
+  up:
+    desc: '[postgresql] Create/start PostgreSQL + pgAdmin and wait until ready'
+    cmds: ['{{.PS}} {{.SCRIPT}} up']
+  stop:
+    desc: '[postgresql] Stop the containers (keep them and their data)'
+    cmds: ['{{.PS}} {{.SCRIPT}} stop']
+  down:
+    desc: '[postgresql] Remove the containers, keep the data volumes'
+    cmds: ['{{.PS}} {{.SCRIPT}} down']
+  reset:
+    desc: '[postgresql] Remove the containers, data volumes and network'
+    prompt: This deletes all PostgreSQL and its pgAdmin data. Continue?
+    cmds: ['{{.PS}} {{.SCRIPT}} reset']
+  status:
+    desc: '[postgresql] Show container/volume state'
+    cmds: ['{{.PS}} {{.SCRIPT}} status']
+  info:
+    desc: '[postgresql] Print connection details'
+    cmds: ['{{.PS}} {{.SCRIPT}} info']
+  logs:
+    desc: '[postgresql] Show logs (task postgresql:logs [-- pgadmin])'
+    cmds: ['{{.PS}} {{.SCRIPT}} logs {{.TARGET}}']
+  shell:
+    desc: '[postgresql] Open psql inside the container (task postgresql:shell [-- pgadmin])'
+    interactive: true
+    cmds: ['{{.PS}} {{.SCRIPT}} shell {{.TARGET}}']
+  pull:
+    desc: '[postgresql] Pull the images'
+    cmds: ['{{.PS}} {{.SCRIPT}} pull']
+  pgadmin:
+    desc: '[postgresql] Open pgAdmin in the browser'
+    cmds: ['{{.PS}} {{.SCRIPT}} pgadmin']

@@ -1,0 +1,40 @@
+# SQL Server recipe -> scripts/mssql.ps1, scripts/mssql-ssms.ps1
+version: '3'
+
+vars:
+  PS: pwsh -NoProfile -ExecutionPolicy Bypass -File
+  SCRIPT: scripts/mssql.ps1
+
+tasks:
+  up:
+    desc: '[mssql] Create/start SQL Server and wait until ready'
+    cmds: ['{{.PS}} {{.SCRIPT}} up']
+  stop:
+    desc: '[mssql] Stop the container (keep it and its data)'
+    cmds: ['{{.PS}} {{.SCRIPT}} stop']
+  down:
+    desc: '[mssql] Remove the container, keep the data volume'
+    cmds: ['{{.PS}} {{.SCRIPT}} down']
+  reset:
+    desc: '[mssql] Remove the container AND data volume'
+    prompt: This deletes all SQL Server data. Continue?
+    cmds: ['{{.PS}} {{.SCRIPT}} reset']
+  status:
+    desc: '[mssql] Show container/volume state'
+    cmds: ['{{.PS}} {{.SCRIPT}} status']
+  info:
+    desc: '[mssql] Print connection details'
+    cmds: ['{{.PS}} {{.SCRIPT}} info']
+  logs:
+    desc: '[mssql] Show container logs'
+    cmds: ['{{.PS}} {{.SCRIPT}} logs']
+  shell:
+    desc: '[mssql] Open sqlcmd inside the container'
+    interactive: true
+    cmds: ['{{.PS}} {{.SCRIPT}} shell']
+  pull:
+    desc: '[mssql] Pull the image'
+    cmds: ['{{.PS}} {{.SCRIPT}} pull']
+  ssms:
+    desc: '[mssql] Launch SSMS on the host, pointed at the container'
+    cmds: ['{{.PS}} scripts/mssql-ssms.ps1']
