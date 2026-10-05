@@ -1,7 +1,7 @@
 #Requires -Version 7.0
 <#
 .SYNOPSIS
-    SQL Server 2022 on WSL containers (wslc). Standalone recipe: independent of the other recipes.
+    SQL Server 2025 on WSL containers (wslc). Standalone recipe: independent of the other recipes.
 
 .DESCRIPTION
     Resources:  container wslc-mssql, volume wslc-mssql-data (labelled wslc-recipes=mssql)
@@ -29,7 +29,7 @@ $ErrorActionPreference = 'Stop'
 # --- configuration (defaults, overridable from <repo>/.env) ---------------------
 
 $Config = [ordered]@{
-    MSSQL_IMAGE       = 'mcr.microsoft.com/mssql/server:2022-latest'
+    MSSQL_IMAGE       = 'mcr.microsoft.com/mssql/server:2025-latest'
     MSSQL_PORT        = '1433'
     MSSQL_SA_PASSWORD = 'Dev_Passw0rd!'
     MSSQL_PID         = 'Developer'
@@ -66,13 +66,16 @@ function Test-WslcObject([string] $Kind, [string] $Name) {
     return $LASTEXITCODE -eq 0
 }
 
-function Get-ContainerState([string] $Name) {
-    $match = & wslc list --all --format json 2>$null |
+function Get-ContainerInfo([string] $Name) {
+    & wslc list --all --format json 2>$null |
         Where-Object { $_ } |
         ForEach-Object { $_ | ConvertFrom-Json } |
         Where-Object { $_.Names -eq $Name } |
         Select-Object -First 1
-    if ($match) { $match.State } else { $null }
+}
+
+function Get-ContainerState([string] $Name) {
+    (Get-ContainerInfo $Name).State
 }
 
 function Wait-Ready {
@@ -114,7 +117,11 @@ if (-not (Get-Command wslc -ErrorAction SilentlyContinue)) {
 switch ($Action) {
     'pull' { Invoke-Wslc pull $Config.MSSQL_IMAGE }
     'up' {
-        $state = Get-ContainerState $Container
+        $existing = Get-ContainerInfo $Container
+        if ($existing -and $existing.Image -notlike "*$($Config.MSSQL_IMAGE)*") {
+            throw "$Container uses $($existing.Image), not $($Config.MSSQL_IMAGE). Back up its data, run 'task mssql:down', then run 'task mssql:up' to recreate it with the new image."
+        }
+        $state = $existing.State
         if ($state -eq 'running') {
             Write-Step "$Container already running"
         }

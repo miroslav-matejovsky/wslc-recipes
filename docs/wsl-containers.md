@@ -63,7 +63,7 @@ Useful extras:
 | Labels              | Set only at creation time; there is no way to add one to an existing container/volume. `-v name:/path` auto-creates an **unlabelled** volume, so the recipes `volume create --label` first.        |
 | `--memory`          | Works, but prints `Your kernel does not support swap limit capabilities ...`. This is harmless.                                                                                                    |
 | Startup times       | SQL Server ~5-10 s, PostgreSQL/TimescaleDB ~2 s, pgAdmin ~40-60 s (first start is the slowest).                                                                                                    |
-| SQL Server on Linux | `mcr.microsoft.com/mssql/server:2022-latest` runs fine (Developer edition, 2 GB memory limit set).                                                                                                 |
+| SQL Server on Linux | `mcr.microsoft.com/mssql/server:2025-latest` is the recipe default (Developer edition, 2 GB memory limit set); this version has not yet been run in this environment.                              |
 
 Not tested yet: whether containers/volumes survive `wsl --shutdown` or a reboot, GPU flags, `wslc build`.
 
@@ -79,11 +79,11 @@ Windows host (127.0.0.1)
    SSMS / sqlcmd ── :1433 ──► wslc-mssql                (wslc-mssql-data)        default bridge network
 
  scripts/postgresql.ps1                                          network wslc-postgresql-net
-   psql / IDE ───── :5432 ──► wslc-postgresql           (wslc-postgresql-data)          ▲
+   psql / IDE ───── :5432 ──► wslc-postgresql           (wslc-postgresql-18-data)       ▲
    Browser ──────── :5050 ──► wslc-postgresql-pgadmin   (wslc-postgresql-pgadmin-data) ─┘ by name
 
  scripts/postgresql+timescale.ps1                                network wslc-timescale-net
-   psql / IDE ───── :5433 ──► wslc-timescale            (wslc-timescale-data)           ▲
+   psql / IDE ───── :5433 ──► wslc-timescale            (wslc-timescale-18-data)        ▲
    Browser ──────── :5051 ──► wslc-timescale-pgadmin    (wslc-timescale-pgadmin-data)  ─┘ by name
 ```
 

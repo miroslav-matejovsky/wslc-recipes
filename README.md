@@ -15,9 +15,9 @@ ports differ, so all of them can run side by side.
 
 | Recipe                      | Script                             | Endpoint (Windows host) | Management                                 | Docs                                                    |
 | --------------------------- | ---------------------------------- | ----------------------- | ------------------------------------------ | ------------------------------------------------------- |
-| SQL Server 2022             | `scripts/mssql.ps1`                | `127.0.0.1,1433`        | SSMS on the host: `scripts/mssql-ssms.ps1` | [mssql.md](docs/mssql.md)                               |
-| PostgreSQL 17               | `scripts/postgresql.ps1`           | `127.0.0.1:5432`        | pgAdmin <http://127.0.0.1:5050>            | [postgresql.md](docs/postgresql.md)                     |
-| PostgreSQL 17 + TimescaleDB | `scripts/postgresql+timescale.ps1` | `127.0.0.1:5433`        | pgAdmin <http://127.0.0.1:5051>            | [postgresql+timescale.md](docs/postgresql+timescale.md) |
+| SQL Server 2025             | `scripts/mssql.ps1`                | `127.0.0.1,1433`        | SSMS on the host: `scripts/mssql-ssms.ps1` | [mssql.md](docs/mssql.md)                               |
+| PostgreSQL 18               | `scripts/postgresql.ps1`           | `127.0.0.1:5432`        | pgAdmin <http://127.0.0.1:5050>            | [postgresql.md](docs/postgresql.md)                     |
+| PostgreSQL 18 + TimescaleDB | `scripts/postgresql+timescale.ps1` | `127.0.0.1:5433`        | pgAdmin <http://127.0.0.1:5051>            | [postgresql+timescale.md](docs/postgresql+timescale.md) |
 
 ## Prerequisites
 
@@ -82,6 +82,10 @@ or from manual experiments. Anything else on your machine is left alone.
 Defaults are built into each script. To override ports, passwords or images, run `task env` (it
 copies [.env.example](.env.example) to the git-ignored `.env`) and edit the keys for your recipe:
 `MSSQL_*`, `POSTGRES_*` or `TIMESCALE_*`.
+
+An existing `.env` keeps its image overrides when these defaults change. Update any old image tags
+there before recreating containers. Existing containers keep the image they were created with; see
+each recipe's upgrade notes before running `down` and `up`.
 
 ## Recipe conventions
 
