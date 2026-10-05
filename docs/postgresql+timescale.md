@@ -6,17 +6,24 @@ different ports.
 
 | Setting | Value |
 |---------|-------|
-| Image | `timescale/timescaledb:latest-pg17` |
+| Image | `timescale/timescaledb:latest-pg18` |
 | Host endpoint | `127.0.0.1:5433` |
 | User / password | `postgres` / `postgres` |
 | Default database | `tsdb` (TimescaleDB extension already enabled) |
 | pgAdmin | <http://127.0.0.1:5051> |
 | Containers | `wslc-timescale`, `wslc-timescale-pgadmin` |
-| Volumes | `wslc-timescale-data`, `wslc-timescale-pgadmin-data` |
+| Volumes | `wslc-timescale-18-data`, `wslc-timescale-pgadmin-data` |
 | Network | `wslc-timescale-net` (pgAdmin reaches the DB as `wslc-timescale:5432`) |
 
 Override with the `TIMESCALE_*` keys in `.env`. User, password and database are fixed on first start.
 To apply new ones, run `task timescale:reset` (this destroys data).
+
+The PostgreSQL 18 image stores its cluster under `/var/lib/postgresql/18/docker`, so the database
+volume is mounted at `/var/lib/postgresql`. The old `wslc-timescale-data` volume stays separate.
+If you have a PostgreSQL 17 TimescaleDB container, back up its data, run `task timescale:down`,
+then `task timescale:up` for a fresh PostgreSQL 18 cluster. Migrate the old data separately using
+[Timescale's upgrade guidance](https://docs.timescale.com/self-hosted/latest/upgrades/upgrade-docker/).
+`task purge` deletes old and new volumes.
 
 ```powershell
 task timescale:up

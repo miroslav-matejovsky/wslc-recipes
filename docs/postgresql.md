@@ -5,17 +5,23 @@ the [TimescaleDB recipe](postgresql+timescale.md) and can run alongside it.
 
 | Setting | Value |
 |---------|-------|
-| Image | `postgres:17` |
+| Image | `postgres:18` |
 | Host endpoint | `127.0.0.1:5432` |
 | User / password | `postgres` / `postgres` |
 | Default database | `app` |
 | pgAdmin | <http://127.0.0.1:5050> |
 | Containers | `wslc-postgresql`, `wslc-postgresql-pgadmin` |
-| Volumes | `wslc-postgresql-data`, `wslc-postgresql-pgadmin-data` |
+| Volumes | `wslc-postgresql-18-data`, `wslc-postgresql-pgadmin-data` |
 | Network | `wslc-postgresql-net` (pgAdmin reaches the DB as `wslc-postgresql:5432`) |
 
 Override with the `POSTGRES_*` keys in `.env`. User, password and database are fixed on first start.
 To apply new ones, run `task postgresql:reset` (this destroys data).
+
+PostgreSQL 18 stores its cluster under `/var/lib/postgresql/18/docker`, so the database volume is
+mounted at `/var/lib/postgresql`. The old `wslc-postgresql-data` volume is kept separate. If you have
+a PostgreSQL 17 container, back up any data you need, run `task postgresql:down`, then
+`task postgresql:up` to create a fresh PostgreSQL 18 cluster. Restore or migrate the old data
+separately; `down` does not delete its volume. `task purge` does delete old and new volumes.
 
 ```powershell
 task postgresql:up

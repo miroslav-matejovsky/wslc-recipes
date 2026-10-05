@@ -5,7 +5,7 @@
 
 .DESCRIPTION
     Resources:  containers wslc-timescale, wslc-timescale-pgadmin
-                volumes    wslc-timescale-data, wslc-timescale-pgadmin-data
+                volumes    wslc-timescale-18-data, wslc-timescale-pgadmin-data
                 network    wslc-timescale-net
                 (all labelled wslc-recipes=<recipe>)
     Endpoints:  TimescaleDB 127.0.0.1:<TIMESCALE_PORT>, pgAdmin http://127.0.0.1:<TIMESCALE_PGADMIN_PORT>
@@ -38,7 +38,7 @@ $RepoRoot = Split-Path $PSScriptRoot -Parent
 # --- configuration (defaults, overridable from <repo>/.env) ---------------------
 
 $Config = [ordered]@{
-    TIMESCALE_IMAGE         = 'timescale/timescaledb:latest-pg17'
+    TIMESCALE_IMAGE         = 'timescale/timescaledb:latest-pg18'
     TIMESCALE_PORT          = '5433'
     TIMESCALE_USER          = 'postgres'
     TIMESCALE_PASSWORD      = 'postgres'
@@ -59,7 +59,7 @@ if (Test-Path $envFile) {
 $Setup = 'timescale'
 $DisplayName = 'TimescaleDB'
 $Network = "wslc-$Setup-net"
-$Db = @{ Name = "wslc-$Setup"; Volume = "wslc-$Setup-data" }
+$Db = @{ Name = "wslc-$Setup"; Volume = "wslc-$Setup-18-data" }
 $PgAdmin = @{ Name = "wslc-$Setup-pgadmin"; Volume = "wslc-$Setup-pgadmin-data" }
 # Marks everything this recipe creates, so scripts/clean.ps1 can find it.
 $Label = "wslc-recipes=$Setup"
@@ -82,13 +82,16 @@ function Test-WslcObject([string] $Kind, [string] $Name) {
     return $LASTEXITCODE -eq 0
 }
 
-function Get-ContainerState([string] $Name) {
-    $match = & wslc list --all --format json 2>$null |
+function Get-ContainerInfo([string] $Name) {
+    & wslc list --all --format json 2>$null |
         Where-Object { $_ } |
         ForEach-Object { $_ | ConvertFrom-Json } |
         Where-Object { $_.Names -eq $Name } |
         Select-Object -First 1
-    if ($match) { $match.State } else { $null }
+}
+
+function Get-ContainerState([string] $Name) {
+    (Get-ContainerInfo $Name).State
 }
 
 function Wait-Until([string] $Name, [scriptblock] $Probe) {
@@ -159,6 +162,10 @@ switch ($Action) {
         Invoke-Wslc pull $Config.TIMESCALE_PGADMIN_IMAGE
     }
     'up' {
+        $existing = Get-ContainerInfo $Db.Name
+        if ($existing -and ($existing.Image -notlike "*$($Config.TIMESCALE_IMAGE)*" -or -not (Test-WslcObject volume $Db.Volume))) {
+            throw "$($Db.Name) uses a different image or data volume. Run 'task timescale:down' to remove it while keeping its data, then run 'task timescale:up' to create $($Config.TIMESCALE_IMAGE). Migrate data separately."
+        }
         if (-not (Test-WslcObject network $Network)) {
             Write-Step "creating network $Network"
             Invoke-Wslc network create --label $Label $Network | Out-Null
@@ -169,7 +176,7 @@ switch ($Action) {
 
         Start-Container $Db.Name @(
             '-p', "$($Config.TIMESCALE_PORT):5432",
-            '-v', "$($Db.Volume):/var/lib/postgresql/data",
+            '-v', "$($Db.Volume):/var/lib/postgresql",
             '-e', "POSTGRES_USER=$($Config.TIMESCALE_USER)",
             '-e', "POSTGRES_PASSWORD=$($Config.TIMESCALE_PASSWORD)",
             '-e', "POSTGRES_DB=$($Config.TIMESCALE_DB)",
